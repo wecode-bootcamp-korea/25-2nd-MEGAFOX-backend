@@ -11,6 +11,10 @@ class KakaoSignInView(View):
         try:
             access_token = request.headers['Authorization']
             response     = requests.get('https://kapi.kakao.com/v2/user/me', headers=({'Authorization': f'Bearer {access_token}'})).json()
+
+            if response.get('code') == -401:
+                return JsonResponse({'message': 'INVALID_REQUEST'}, status=400)
+
             email        = response['kakao_account']['email']
             name         = response['kakao_account']['profile']['nickname']
             kakao_id     = response['id']
