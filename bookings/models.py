@@ -1,8 +1,8 @@
-from django.db     import models
+from django.db       import models
 
-from core.models   import TimeStamp
-from users.models  import User
-from movies.models import MovieTheater
+from core.models     import TimeStamp
+from users.models    import User
+from theaters.models import MovieTheater
 
 class Booking(TimeStamp) :
   user          = models.ForeignKey(User, on_delete=models.CASCADE)

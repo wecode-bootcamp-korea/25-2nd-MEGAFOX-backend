@@ -1,9 +1,10 @@
-from django.db      import models
+from django.db       import models
 
-from core.models    import TimeStamp
-from users.models   import User
-from movies.models  import Movie, Theater
-from reviews.models import Review
+from core.models     import TimeStamp
+from users.models    import User
+from movies.models   import Movie
+from theaters.models import Theater
+from reviews.models  import Review
 
 class UserLikeMovie(TimeStamp):
   user  = models.ForeignKey(User, on_delete=models.CASCADE)
