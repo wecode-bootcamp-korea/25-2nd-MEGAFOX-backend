@@ -9,28 +9,12 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('users', '0002_rename_phone_user_phone_number'),
         ('movies', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Review',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('rating', models.IntegerField()),
-                ('body', models.CharField(max_length=200)),
-                ('movie', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='movies.movie')),
-                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='users.user')),
-            ],
-            options={
-                'db_table': 'reviews',
-            },
-        ),
-        migrations.CreateModel(
-            name='ViewingPoint',
+            name='City',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
@@ -38,20 +22,34 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=45)),
             ],
             options={
-                'db_table': 'viewing_points',
+                'db_table': 'cities',
             },
         ),
         migrations.CreateModel(
-            name='ReviewViewingPoint',
+            name='Theater',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('review', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='reviews.review')),
-                ('viewing_point', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='reviews.viewingpoint')),
+                ('name', models.CharField(max_length=45)),
+                ('city', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='theaters.city')),
             ],
             options={
-                'db_table': 'reviews_viewing_points',
+                'db_table': 'theaters',
+            },
+        ),
+        migrations.CreateModel(
+            name='MovieTheater',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('screen_time', models.DateTimeField()),
+                ('movie', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='movies.movie')),
+                ('theater', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='theaters.theater')),
+            ],
+            options={
+                'abstract': False,
             },
         ),
     ]
