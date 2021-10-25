@@ -18,4 +18,5 @@ from django.urls import path, include
 urlpatterns = [
     path('users', include('users.urls')),
     path('movie', include('movies.urls')),
+    path('theaters', include('theaters.urls'))
 ]
