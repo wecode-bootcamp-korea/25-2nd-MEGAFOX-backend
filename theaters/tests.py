@@ -23,7 +23,7 @@ class TheaterTest(TestCase):
     def test_theater_get_success(self):
         client = Client()
 
-        response = client.get('/theater', content_type='application/json')
+        response = client.get('/theaters', content_type='application/json')
         self.assertEqual(response.json(),
         [{
             'city': {
