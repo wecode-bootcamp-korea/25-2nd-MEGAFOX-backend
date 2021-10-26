@@ -20,5 +20,6 @@ urlpatterns = [
     path('movie', include('movies.urls')),
     path('theaters', include('theaters.urls')),
     path('review', include('reviews.urls')),
-    path('like', include('likes.urls'))
+    path('like', include('likes.urls')),
+    path('booking', include('bookings.urls'))
 ]
