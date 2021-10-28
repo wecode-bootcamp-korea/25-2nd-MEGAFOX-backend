@@ -86,12 +86,12 @@ class ReserveView(View):
 
     @login_decorator
     def get(self, request):
-        user_like_theaters = list(UserLikeTheater.objects.filter(user_id=request.user.id).values_list('theater_id', flat=True))
+        user_like_theaters = UserLikeTheater.objects.filter(user_id=request.user.id)
 
         date     = request.GET.get('date', datetime.datetime.strftime(TODAY, '%Y-%m-%d'))
         movie    = request.GET.get('movieNo', None)
         city     = request.GET.get('city', None)
-        theaters = request.GET.getlist('theater_id', user_like_theaters)
+        theaters = request.GET.getlist('theater_id', list(user_like_theaters.values_list('theater_id', flat=True)))
 
         q = Q()
 
@@ -124,9 +124,9 @@ class ReserveView(View):
         } for movie in movie_theater]
 
         theater_list = [{
-            "city_id"       : city.id,
-            "city_name"     : city.name,
-            "theater_count" : len(city.theater_set.all()),
+            "city_id"        : city.id,
+            "city_name"      : city.name,
+            "theater_count"  : len(city.theater_set.all()),
             "theater" : [{
                 "theater_id"   : theater.id,
                 "theater_name" : theater.name
@@ -137,14 +137,26 @@ class ReserveView(View):
             "movie_id"     : movie.id,
             "movie_name"   : movie.ko_name,
             "age_rate"     : movie.age_rate,
-            "is_userlike"  : True if movie.userlikemovie_set.filter(movie_id=movie.id, user_id=request.user.id).exists() else False,
-            "is_available" : True if movie_theater.filter(movie__id=movie.id).exists() else False
+            "is_userlike"  : movie.userlikemovie_set.filter(movie_id=movie.id, user_id=request.user.id).exists(),
+            "is_available" : movie_theater.filter(movie__id=movie.id).exists(),
+            "poster"       : Image.objects.get(movie_id=movie.id).main_image_url,
         } for movie in Movie.objects.prefetch_related('userlikemovie_set').all()]
 
+        like_theaters = user_like_theaters.all()
+
+        liked_theaters = [{
+            "city_id" : 0,
+            "city_name" : "선호극장",
+            "theater_count" : len(like_theaters),
+            "theater" : [{
+                "theater_id"   : theater.id,
+                "theater_name" : theater.theater.name
+            } for theater in like_theaters]}]
+
         result = {
-            "movie_list"   : movie_list,
-            "theater_list" : theater_list, 
-            "movie_info"   : filtered_movies,
+            "movie_list"     : movie_list,
+            "theater_list"   : liked_theaters + theater_list, 
+            "movie_info"     : filtered_movies,
         }
 
         return JsonResponse({"result" : result}, status=200)
