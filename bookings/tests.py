@@ -22,6 +22,16 @@ class BookingTest(TestCase):
                 id      = 1,
                 name    = '강남',
                 city_id = 1
+            ),
+            Theater(
+                id      = 2,
+                name    = '동대문',
+                city_id = 1
+            ),
+            Theater(
+                id      = 3,
+                name    = '신촌',
+                city_id = 1
             )
         ])
 
@@ -66,7 +76,7 @@ class BookingTest(TestCase):
         MovieTheater.objects.bulk_create([
             MovieTheater(
                 id          = 1,
-                screen_time = '2021-10-28 08:10:00',
+                screen_time = '2021-10-29 08:10:00',
                 movie_id    = 1,
                 theater_id  = 1
             )
@@ -103,6 +113,11 @@ class BookingTest(TestCase):
             UserLikeTheater(
                 id         = 1,
                 theater_id = 1,
+                user_id    = 1
+            ),
+            UserLikeTheater(
+                id         = 2,
+                theater_id = 2,
                 user_id    = 1
             )
         ])
@@ -141,7 +156,7 @@ class BookingTest(TestCase):
     def test_booking_info_get_succcess(self):
         access_token = jwt.encode({'id' : 1}, SECRET_KEY, ALGORITHM)
         client       = Client()
-        response     = client.get('/booking', **{'HTTP_Authorization' : access_token}, content_type='application/json')
+        response     = client.get('/booking', **{'HTTP_Authorization' : access_token})
 
         self.assertEqual(response.json(),
         {'results' : [{
@@ -149,13 +164,13 @@ class BookingTest(TestCase):
             'movie_image'  : 'naver.com',
             'theater'      : '강남',
             'movie_name'   : '베놈 2',
-            'screen_time'  : '2021.10.28 Thursday 08:10',
+            'screen_time'  : '2021.10.29 Friday 08:10',
             'people'       : {
                 "adult" : 2,
                 "teenager" : 0,
                 "kid" : 0
             },
-            'booking_date' : '2021.10.27'
+            'booking_date' : '2021.10.28'
             }]
         })
 
@@ -222,7 +237,7 @@ class BookingTest(TestCase):
     def test_reserve_get_success(self):
         access_token = jwt.encode({'id' : 1}, SECRET_KEY, ALGORITHM)
         client       = Client()
-        response     = client.get('/booking/reserve?date=2021-10-28', **{'HTTP_Authorization' : access_token})
+        response     = client.get('/booking/reserve?date=2021-10-29', **{'HTTP_Authorization' : access_token})
 
         self.assertEqual(response.json(),
         {
@@ -233,25 +248,50 @@ class BookingTest(TestCase):
                         "movie_name"   : '베놈 2',
                         "age_rate"     : '15세',
                         "is_userlike"  : False,
-                        "is_available" : True
+                        "is_available" : True,
+                        "poster"       : 'naver.com'
                     },
                     {
                         "movie_id"     : 2,
                         "movie_name"   : '듄',
                         "age_rate"     : '15세',
                         "is_userlike"  : False,
-                        "is_available" : False
+                        "is_available" : False,
+                        "poster"       : 'naver.com'
                     },
                 ],
                 "theater_list" : [
                     {
-                        "city_id"       : 1,
-                        "city_name"     : "서울",
-                        "theater_count" : 1,
+                        "city_id"        : 0,
+                        "city_name"      : "선호극장",
+                        "theater_count"  : 2,
                         "theater" : [
                             {
                                 "theater_id"  : 1,
                                 "theater_name": "강남"
+                            },
+                            {
+                                "theater_id"  : 2,
+                                "theater_name": "동대문"
+                            }
+                        ]
+                    },
+                    {
+                        "city_id"        : 1,
+                        "city_name"      : "서울",
+                        "theater_count"  : 3,
+                        "theater" : [
+                            {
+                                "theater_id"  : 1,
+                                "theater_name": "강남"
+                            },
+                            {
+                                "theater_id"  : 2,
+                                "theater_name": "동대문"
+                            },
+                            {
+                                "theater_id"  : 3,
+                                "theater_name": "신촌"
                             }
                         ]
                     }

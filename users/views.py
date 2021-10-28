@@ -1,7 +1,9 @@
-import jwt, requests
+import jwt, requests, datetime
 
 from django.http      import JsonResponse
 from django.views     import View
+from bookings.models import Booking
+from megafox.utils import login_decorator
 
 from users.models     import User
 from megafox.settings import SECRET_KEY, ALGORITHM
@@ -28,10 +30,31 @@ class KakaoSignInView(View):
 
             access_token = jwt.encode({'id' : user.id}, SECRET_KEY, ALGORITHM)
 
-            return JsonResponse({'access_token' : access_token}, status=200)
+            return JsonResponse({'message': access_token}, status=200)
 
         except KeyError:
             return JsonResponse({'message' : 'KEY_ERROR'}, status=400)
 
         except ValueError:
             return JsonResponse({'message' : 'VALUE_ERROR'}, status=400)
+
+class UserInfoView(View):
+    @login_decorator
+    def get(self, request):
+        user = request.user
+        bookings = Booking.objects.select_related('movie_theater', 'user')\
+                                  .filter(user_id=user.id, movie_theater__screen_time__gte=datetime.datetime.today())
+
+        result = {
+            "user_id" : user.id,
+            "point" : user.point,
+            "name" : user.name,
+            "booking" : [{
+                "count" : len(bookings), 
+                "detail" : {
+                    "booking_id" : booking.id
+                }
+            } for booking in bookings]
+        }
+
+        return JsonResponse({'result' : result}, status=200)

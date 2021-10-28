@@ -1,9 +1,7 @@
 import datetime
-from django.db.models.query import Prefetch
 
 from django.http        import JsonResponse
 from django.views       import View
-from django.db import connection
 
 from movies.models      import *
 from reviews.models     import *

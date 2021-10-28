@@ -11,10 +11,10 @@ class TheaterTest(TestCase):
         ])
 
         Theater.objects.bulk_create([
-            Theater(city_id = 1, name = '신촌'),
-            Theater(city_id = 1, name = '압구정'),
-            Theater(city_id = 2, name = '동대구'),
-            Theater(city_id = 2, name = '대구')
+            Theater(id = 1, city_id = 1, name = '신촌'),
+            Theater(id = 2, city_id = 1, name = '압구정'),
+            Theater(id = 3, city_id = 2, name = '동대구'),
+            Theater(id = 4, city_id = 2, name = '대구')
         ])
     def tearDown(self):
         Theater.objects.all().delete()
