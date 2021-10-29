@@ -10,7 +10,7 @@ from likes.models     import UserLikeTheater
 from megafox.utils   import login_decorator
 from bookings.models import Booking
 from movies.models   import Image, Movie
-from theaters.models import MovieTheater, City
+from theaters.models import MovieTheater, City, Theater
 from likes.models    import UserLikeTheater
 
 TODAY = datetime.datetime.today().replace(tzinfo=datetime.timezone.utc)
@@ -89,27 +89,29 @@ class ReserveView(View):
         user_like_theaters = UserLikeTheater.objects.filter(user_id=request.user.id)
 
         date     = request.GET.get('date', datetime.datetime.strftime(TODAY, '%Y-%m-%d'))
-        movie    = request.GET.get('movieNo', None)
+        movie    = request.GET.getlist('movieNo', None)
         city     = request.GET.get('city', None)
         theaters = request.GET.getlist('theater_id', list(user_like_theaters.values_list('theater_id', flat=True)))
-
+       
         q = Q()
+        q_theater = Q()
 
         if date:
             q.add(Q(screen_time__day=datetime.datetime.strptime(date, '%Y-%m-%d').day), q.AND)
             q.add(Q(screen_time__month=datetime.datetime.strptime(date, '%Y-%m-%d').month), q.AND)
             q.add(Q(screen_time__year=datetime.datetime.strptime(date, '%Y-%m-%d').year), q.AND)
-        
+
         if movie:
-            q.add(Q(movie__id=movie),q.AND)
+            q.add(Q(movie__id__in=movie),q.AND)
         
         if city:
             q.add(Q(theater__city_id=city), q.AND)
 
         if theaters:
             q.add(Q(theater_id__in=theaters), q.AND)
+            q_theater.add(Q(theater_id__in=theaters), q.AND)
 
-        movie_theater = MovieTheater.objects.filter(q).prefetch_related('movie', 'theater')
+        movie_theater = MovieTheater.objects.filter(q).prefetch_related('movie', 'theater').order_by('screen_time')
 
         if not movie_theater:
             return JsonResponse({'message' : 'MOVIE_OR_THEATER_DOES_NOT_EXIST'}, status=404)
@@ -141,7 +143,7 @@ class ReserveView(View):
             "is_available" : movie_theater.filter(movie__id=movie.id).exists(),
             "poster"       : Image.objects.get(movie_id=movie.id).main_image_url,
         } for movie in Movie.objects.prefetch_related('userlikemovie_set').all()]
-
+        print(date)
         like_theaters = user_like_theaters.all()
 
         liked_theaters = [{
