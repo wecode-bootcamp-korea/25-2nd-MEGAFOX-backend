@@ -170,7 +170,7 @@ class BookingTest(TestCase):
                 "teenager" : 0,
                 "kid" : 0
             },
-            'booking_date' : '2021.10.28'
+            'booking_date' : '2021.10.29'
             }]
         })
 
