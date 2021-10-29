@@ -94,7 +94,6 @@ class ReserveView(View):
         theaters = request.GET.getlist('theater_id', list(user_like_theaters.values_list('theater_id', flat=True)))
        
         q = Q()
-        q_theater = Q()
 
         if date:
             q.add(Q(screen_time__day=datetime.datetime.strptime(date, '%Y-%m-%d').day), q.AND)
@@ -109,7 +108,6 @@ class ReserveView(View):
 
         if theaters:
             q.add(Q(theater_id__in=theaters), q.AND)
-            q_theater.add(Q(theater_id__in=theaters), q.AND)
 
         movie_theater = MovieTheater.objects.filter(q).prefetch_related('movie', 'theater').order_by('screen_time')
 
@@ -140,10 +138,10 @@ class ReserveView(View):
             "movie_name"   : movie.ko_name,
             "age_rate"     : movie.age_rate,
             "is_userlike"  : movie.userlikemovie_set.filter(movie_id=movie.id, user_id=request.user.id).exists(),
-            "is_available" : movie_theater.filter(movie__id=movie.id).exists(),
+            "is_available" : MovieTheater.objects.filter(screen_time__contains=date, theater_id__in=theaters, movie_id=movie.id).exists(),
             "poster"       : Image.objects.get(movie_id=movie.id).main_image_url,
         } for movie in Movie.objects.prefetch_related('userlikemovie_set').all()]
-        print(date)
+
         like_theaters = user_like_theaters.all()
 
         liked_theaters = [{
